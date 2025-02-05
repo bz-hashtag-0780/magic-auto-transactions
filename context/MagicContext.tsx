@@ -1,8 +1,12 @@
+'use client';
+
 import { getNetworkUrl } from '@/utils/network';
 import { OAuthExtension } from '@magic-ext/oauth';
 import { Magic as MagicBase } from 'magic-sdk';
 import {
+	Dispatch,
 	ReactNode,
+	SetStateAction,
 	createContext,
 	useContext,
 	useEffect,
@@ -20,11 +24,15 @@ export type Magic = MagicBase<
 
 type MagicContextType = {
 	magic: Magic | null;
+	token: string;
+	setToken: Dispatch<SetStateAction<string>>;
 	solanaConnection: Connection | null;
 };
 
 const MagicContext = createContext<MagicContextType>({
 	magic: null,
+	token: '',
+	setToken: () => {},
 	solanaConnection: null,
 });
 
@@ -32,6 +40,7 @@ export const useMagic = () => useContext(MagicContext);
 
 const MagicProvider = ({ children }: { children: ReactNode }) => {
 	const [magic, setMagic] = useState<Magic | null>(null);
+	const [token, setToken] = useState('');
 	const [solanaConnection, setSolanaConnection] = useState<Connection | null>(
 		null
 	);
@@ -67,8 +76,10 @@ const MagicProvider = ({ children }: { children: ReactNode }) => {
 		return {
 			magic,
 			solanaConnection,
+			token,
+			setToken,
 		};
-	}, [magic, solanaConnection]);
+	}, [magic, solanaConnection, token]);
 
 	return (
 		<MagicContext.Provider value={value}>{children}</MagicContext.Provider>
